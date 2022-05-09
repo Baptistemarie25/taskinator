@@ -48,9 +48,8 @@ var createTaskEl = function(taskDataObj) {
     listItemEl.appendChild(taskInfoEl);
 
     // create task actions (buttons and select) for task
-    listItemEl.appendChild(taskActionsEl);
     var taskActionsEl = createTaskActions(taskIdCounter);
-    console.log(taskActionsEl);
+    listItemEl.appendChild(taskActionsEl);
     tasksToDoEl.appendChild(listItemEl);
     
 
@@ -98,4 +97,49 @@ var createTaskActions = function(taskId) {
     return actionContainerEl;
 };
 
+var taskButtonHandler = function(event) {
+    // get target element from event
+    var targetEl = event.target;
+
+    // edit button was clicked
+    if (targetEl.matches(".edit-btn")) {
+    var taskId = targetEl.getAttribute("data-task-id");
+    editTask(taskId);
+    } 
+    // delete button was clicked
+    else if (targetEl.matches(".delete-btn")) {
+    var taskId = targetEl.getAttribute("data-task-id");
+    deleteTask(taskId);
+    }
+};
+
+var editTask = function(taskId) {
+    // get task list item element
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+    // get content from task name and type
+    var taskName = taskSelected.querySelector("h3.task-name").textContent;
+    var taskType = taskSelected.querySelector("span.task-type").textContent;
+    
+    document.querySelector("input[name='task-name']").value = taskName;
+    document.querySelector("select[name='task-type']").value = taskType;
+    //this will change submit button to save task button 
+    document.querySelector("#save-task").textContent = "Save Task";
+    
+    //this lets us know which task is being edited
+    formEl.setAttribute("data-task-id", taskId);
+};
+
+var deleteTask = function(taskId) {
+    // find task list element with taskID value and remove it 
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+    taskSelected.remove();
+};
+
+//create new task
 formEl.addEventListener("submit", taskFormHandler); 
+
+//for edit and delete buttons
+pageContentEl.addEventListener("click", taskButtonHandler);
+
+
