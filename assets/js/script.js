@@ -45,26 +45,43 @@ var createTaskEl = function(taskDataObj) {
     var listItemEl = document.createElement("li");
     listItemEl.className = "task-item";
     listItemEl.setAttribute("data-task-id", taskIdCounter);
-
-    var taskInfoEl = document.createElement("div");
-    taskInfoEl.className = "task-info";
-    taskInfoEl.innerHTML = "<h3 class='task-name'>" + taskDataObj.name + "</h3><span class='task-type'>" + taskDataObj.type + "</span>";
-    listItemEl.appendChild(taskInfoEl);
-
-    // create task actions (buttons and select) for task
-    var taskActionsEl = createTaskActions(taskIdCounter);
-    listItemEl.appendChild(taskActionsEl);
-    tasksToDoEl.appendChild(listItemEl);
     
-    taskDataObj.id = taskIdCounter;
-
-    tasks.push(taskDataObj);
-
-    taskDataObj.id = taskIdCounter;
-    tasks.push(taskDataObj);
-
-    // increase task counter for next unique id
-    taskIdCounter++;
+        var taskInfoEl = document.createElement("div");
+        taskInfoEl.className = "task-info";
+        taskInfoEl.innerHTML =
+        "<h3 class='task-name'>" + taskDataObj.name + "</h3><span class='task-type'>" + taskDataObj.type + "</span>";
+        listItemEl.appendChild(taskInfoEl);
+    
+        var taskActionsEl = createTaskActions(taskIdCounter);
+        listItemEl.appendChild(taskActionsEl);
+    
+        switch (taskDataObj.status) {
+        case "to do":
+            taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 0;
+            tasksToDoEl.append(listItemEl);
+            break;
+        case "in progress":
+            taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 1;
+            tasksInProgressEl.append(listItemEl);
+            break;
+        case "completed":
+            taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 2;
+            tasksCompletedEl.append(listItemEl);
+            break;
+        default:
+            console.log("Something went wrong!");
+        }
+    
+        // save task as an object with name, type, status, and id properties then push it into tasks array
+        taskDataObj.id = taskIdCounter;
+    
+        tasks.push(taskDataObj);
+    
+        // save tasks to localStorage
+        saveTasks();
+    
+        // increase task counter for next unique task id
+        taskIdCounter++;
 };
 
 var createTaskActions = function(taskId) {
@@ -127,6 +144,9 @@ var completeEditTask = function(taskName, taskType, taskId) {
     //this is to reset the form after task is edited
     formEl.removeAttribute("data-task-id");
     document.querySelector("#save-task").textContent = "Add Task";
+
+    //save tasks to localstorage
+    saveTasks();
 };
 
 var taskButtonHandler = function(event) {
@@ -170,6 +190,9 @@ var taskStatusChangeHandler = function(event) {
             tasks[i].status = statusValue;
         }
     }
+
+    // save to localstorage
+    saveTasks();
 };
 
 var editTask = function(taskId) {
@@ -212,6 +235,11 @@ var deleteTask = function (taskId) {
         tasks = updatedTaskArr;
         saveTasks();
 };
+
+var saveTasks = function() {
+
+    localStorage.setItem("tasks", tasks);
+}
 
 //create new task
 formEl.addEventListener("submit", taskFormHandler); 
