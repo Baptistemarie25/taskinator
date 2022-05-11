@@ -257,7 +257,6 @@ var loadTasks = function() {
     if (!savedTasks) {
     return false;
     }
-    
     savedTasks = JSON.parse(savedTasks);
 
     // loop through savedTasks array
